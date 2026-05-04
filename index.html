@@ -1,54 +1,271 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>猪猪 & 猫猫 的健康日记</title>
-    <!-- 引入 Tailwind CSS -->
+    <title>猪猪 & 猫猫的健康日记</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入 Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- 引入 Lucide 图标 -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- 引入 Google Fonts: Noto Sans SC -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            background-color: #F8FAFC;
-            font-family: 'Noto Sans SC', -apple-system, sans-serif;
-            -webkit-font-smoothing: antialiased;
+        :root {
+            --bg-ivory: #f5f1ea;
+            --bg-sand: #efe5da;
+            --bg-blush: #f7ece6;
+            --ink: #2f2925;
+            --muted: #7c746d;
+            --card: rgba(255, 252, 247, 0.78);
+            --shadow: 0 24px 60px -32px rgba(79, 56, 35, 0.28);
+            --gold: #c9a66b;
+            --blue: #7fa7d8;
+            --rose: #d9979f;
         }
-        /* 隐藏极其生硬的默认滚动条，替换为轻盈质感 */
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            color: var(--ink);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            background:
+                radial-gradient(circle at top left, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0) 30%),
+                radial-gradient(circle at 85% 15%, rgba(217, 151, 159, 0.18) 0%, rgba(217, 151, 159, 0) 28%),
+                radial-gradient(circle at 20% 80%, rgba(127, 167, 216, 0.16) 0%, rgba(127, 167, 216, 0) 24%),
+                linear-gradient(180deg, var(--bg-ivory) 0%, #f8f5f0 45%, var(--bg-blush) 100%);
+            animation: backgroundBreath 16s ease-in-out infinite alternate;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: -10%;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 18% 24%, rgba(255,255,255,0.34), transparent 22%),
+                radial-gradient(circle at 80% 18%, rgba(217, 151, 159, 0.14), transparent 20%),
+                radial-gradient(circle at 72% 72%, rgba(127, 167, 216, 0.12), transparent 20%);
+            filter: blur(10px);
+            animation: glowDrift 22s ease-in-out infinite alternate;
+            z-index: 0;
+        }
+
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
         }
+
         ::-webkit-scrollbar-track {
             background: transparent;
         }
+
         ::-webkit-scrollbar-thumb {
-            background: #E2E8F0;
-            border-radius: 10px;
+            background: #d8cdc0;
+            border-radius: 999px;
         }
+
         ::-webkit-scrollbar-thumb:hover {
-            background: #CBD5E1;
+            background: #bfaf9c;
         }
-        /* 柔和的悬浮过渡效果 */
+
         .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 40px -2px rgba(0, 0, 0, 0.03);
-            border: 1px solid rgba(226, 232, 240, 0.6);
+            background: var(--card);
+            backdrop-filter: blur(18px);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 250, 244, 0.78);
+            transition: transform 260ms ease, box-shadow 260ms ease, border-color 260ms ease;
+        }
+
+        .serif-display {
+            font-family: 'Cormorant Garamond', serif;
+            letter-spacing: 0.02em;
+        }
+
+        .section-label {
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            color: #9a8876;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        .hero-panel {
+            position: relative;
+            overflow: hidden;
+            background:
+                linear-gradient(135deg, rgba(255,255,255,0.82), rgba(255,248,240,0.65)),
+                radial-gradient(circle at top right, rgba(201, 166, 107, 0.16), transparent 30%);
+            border: 1px solid rgba(255,255,255,0.72);
+        }
+
+        .hero-panel::after {
+            content: "";
+            position: absolute;
+            inset: auto -10% -35% 40%;
+            height: 260px;
+            background: radial-gradient(circle, rgba(201, 166, 107, 0.14), rgba(201, 166, 107, 0));
+            pointer-events: none;
+        }
+
+        .stat-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,250,245,0.72));
+            border: 1px solid rgba(255,255,255,0.82);
+        }
+
+        .chart-shell {
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.78), rgba(255,250,245,0.58)),
+                radial-gradient(circle at top, rgba(201, 166, 107, 0.08), transparent 42%);
+        }
+
+        .note-wall {
+            position: relative;
+            min-height: 420px;
+            padding: 0.5rem 0 1rem;
+        }
+
+        .chat-row {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            will-change: transform;
+        }
+
+        .note-bubble {
+            position: absolute;
+            width: max-content;
+            max-width: min(100%, 360px);
+            padding: 0.95rem 1rem 1rem;
+            border-radius: 1.55rem;
+            border: 1px solid rgba(255,255,255,0.76);
+            box-shadow: 0 22px 44px -34px rgba(72, 52, 39, 0.38);
+            transform-origin: center center;
+            transform: rotate(var(--bubble-rotate, 0deg));
+            transition: transform 240ms ease, box-shadow 240ms ease, border-color 240ms ease;
+            animation: bubbleReveal 700ms cubic-bezier(.2,.8,.2,1) both;
+        }
+
+        .note-bubble.is-warm {
+            border-bottom-left-radius: 0.5rem;
+            background: linear-gradient(180deg, rgba(255,250,248,0.98), rgba(247, 232, 229, 0.9));
+        }
+
+        .note-bubble.is-cool {
+            border-bottom-right-radius: 0.5rem;
+            background: linear-gradient(180deg, rgba(250,252,255,0.98), rgba(232, 239, 247, 0.92));
+        }
+
+        .note-bubble.is-warm::after,
+        .note-bubble.is-cool::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            width: 18px;
+            height: 18px;
+            background: inherit;
+        }
+
+        .note-bubble.is-warm::after {
+            left: -8px;
+            clip-path: path("M18 0 C10 8, 4 13, 0 18 L18 18 Z");
+        }
+
+        .note-bubble.is-cool::after {
+            right: -8px;
+            clip-path: path("M0 0 C8 8, 14 13, 18 18 L0 18 Z");
+        }
+
+        .note-bubble:hover {
+            transform: rotate(var(--bubble-rotate, 0deg)) translateY(-6px) scale(1.015) !important;
+            box-shadow: 0 30px 56px -34px rgba(72, 52, 39, 0.45);
+            border-color: rgba(201, 166, 107, 0.35);
+        }
+
+        .note-date {
+            color: #8a7764;
+            font-size: 0.75rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .note-text {
+            color: #4c433d;
+            line-height: 1.8;
+        }
+
+        .note-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 0.55rem;
+        }
+
+        .reveal-up {
+            opacity: 0;
+            transform: translateY(22px);
+            animation: revealUp 780ms cubic-bezier(.2,.8,.2,1) forwards;
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 30px 64px -36px rgba(79, 56, 35, 0.35);
+            border-color: rgba(201, 166, 107, 0.28);
+        }
+
+        @keyframes revealUp {
+            from {
+                opacity: 0;
+                transform: translateY(22px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bubbleReveal {
+            from {
+                opacity: 0;
+                transform: translateY(14px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes backgroundBreath {
+            0% {
+                background-position: 0% 0%, 85% 15%, 20% 80%, 0% 0%;
+            }
+            100% {
+                background-position: 4% 2%, 82% 18%, 24% 76%, 0% 0%;
+            }
+        }
+
+        @keyframes glowDrift {
+            0% {
+                transform: translate3d(-1%, -1%, 0) scale(1);
+                opacity: 0.9;
+            }
+            100% {
+                transform: translate3d(1.5%, 1%, 0) scale(1.04);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .note-bubble {
+                width: auto;
+                max-width: calc(100% - 1rem);
+            }
         }
     </style>
 </head>
-<body class="text-slate-700 pb-12">
-
-    <!-- ========================================== -->
-    <!-- 🗄️ 独立数据源 (仅维护此处即可) -->
-    <!-- ========================================== -->
-    <!-- 说明：这里相当于一个独立的 data.json 文件。 -->
-    <!-- 格式要求严格：属性名必须用双引号，最后一行数据末尾不要加逗号。 -->
+<body class="pb-12">
     <script id="weight-data" type="application/json">
     [
         { "date": "02-26", "piggy": 70.50, "kitty": 55.25, "note": "" },
@@ -74,8 +291,8 @@
         { "date": "03-19", "piggy": 69.20, "kitty": 53.70, "note": "" },
         { "date": "03-20", "piggy": 69.10, "kitty": 54.05, "note": "" },
         { "date": "03-21", "piggy": 69.40, "kitty": 53.65, "note": "" },
-        { "date": "03-22", "piggy": 69.35, "kitty": 54.0, "note": "" },
-        { "date": "03-23", "piggy": 69.45, "kitty": 54.20, "note": "" },        
+        { "date": "03-22", "piggy": 69.35, "kitty": 54.00, "note": "" },
+        { "date": "03-23", "piggy": 69.45, "kitty": 54.20, "note": "" },
         { "date": "03-25", "piggy": 68.80, "kitty": 54.10, "note": "" },
         { "date": "03-26", "piggy": 68.95, "kitty": 53.60, "note": "" },
         { "date": "03-27", "piggy": 69.15, "kitty": 53.90, "note": "" },
@@ -87,282 +304,242 @@
         { "date": "04-07", "piggy": 69.25, "kitty": 53.70, "note": "" },
         { "date": "04-08", "piggy": 68.40, "kitty": 53.30, "note": "" },
         { "date": "04-09", "piggy": 69.30, "kitty": 53.60, "note": "" },
-        { "date": "04-10", "piggy": 69.30, "kitty": 54.20, "note": "" },        
-        { "date": "04-12", "piggy": 68.60, "kitty": 53.35, "note": "" },        
-        { "date": "04-16", "piggy": 68.85, "kitty": 53.20, "note": "" },
+        { "date": "04-10", "piggy": 69.30, "kitty": 54.20, "note": "" },
+        { "date": "04-12", "piggy": 68.60, "kitty": 53.35, "note": "" },
+        { "date": "04-16", "piggy": 68.85, "kitty": 53.20, "note": "猪猪去成都出差" },
         { "date": "04-23", "piggy": 68.65, "kitty": 53.70, "note": "" },
         { "date": "04-24", "piggy": 68.70, "kitty": 52.83, "note": "" },
-        { "date": "04-27", "piggy": 68.45, "kitty": 53.0, "note": "" },
+        { "date": "04-27", "piggy": 68.45, "kitty": 53.00, "note": "" },
         { "date": "04-28", "piggy": 68.15, "kitty": 52.45, "note": "" },
-        { "date": "04-29", "piggy": 67.85, "kitty": 52.8, "note": "" },
-        { "date": "04-30", "piggy": 68.0, "kitty": 52.45, "note": "" },
-        { "date": "04-29", "piggy": 67.95, "kitty": 52.8, "note": "" }
+        { "date": "04-29", "piggy": 67.85, "kitty": 52.80, "note": "" },
+        { "date": "04-30", "piggy": 68.00, "kitty": 52.45, "note": "" },
+        { "date": "05-01", "piggy": 67.95, "kitty": 52.80, "note": "今天去航海！" },
+        { "date": "05-03", "piggy": 67.80, "kitty": 52.30, "note": "Enjoy假期" }
     ]
     </script>
-    <!-- ========================================== -->
 
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
-        
-        <!-- 页面头部：温和的问候 -->
-        <header class="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-4">
+    <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        <header class="hero-panel glass-card hover-lift reveal-up rounded-[2.5rem] px-6 py-8 sm:px-10 sm:py-10 flex flex-col md:flex-row md:items-end justify-between gap-6" style="animation-delay: 0.02s;">
             <div>
-                <h1 class="text-3xl font-semibold text-slate-800 tracking-tight flex items-center gap-3">
-                    <span class="bg-indigo-50 text-indigo-500 p-2 rounded-2xl">
+                <p class="section-label mb-3">Wellness Journal</p>
+                <h1 class="text-4xl sm:text-5xl serif-display font-semibold text-stone-800 tracking-tight flex items-center gap-3">
+                    <span class="bg-white/70 text-[color:var(--gold)] p-3 rounded-[1.5rem] shadow-sm">
                         <i data-lucide="leaf" class="w-6 h-6"></i>
                     </span>
                     家庭健康日记
                 </h1>
-                <p class="text-slate-500 mt-2 text-sm sm:text-base font-medium flex items-center gap-2">
-                    今天也在慢慢变好，记录本身就是一种坚持 🌿
+                <p class="text-stone-500/90 mt-3 text-sm sm:text-base font-medium flex items-center gap-2 max-w-2xl leading-7">
+                    体重走势是克制而诚实的记录，生活随记则让每一次坚持都拥有温度。
                 </p>
             </div>
-            <div class="text-sm text-slate-400 font-medium pb-1" id="currentDateDisplay">
-                <!-- 日期由 JS 填充 -->
-            </div>
+            <div class="text-sm text-stone-400 font-medium pb-1 md:text-right" id="currentDateDisplay"></div>
         </header>
 
-        <!-- 状态仪表盘卡片 -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <!-- 卡片 1：坚持天数 -->
-            <div class="glass-card rounded-3xl p-6 relative overflow-hidden group">
+            <div class="glass-card stat-card hover-lift reveal-up rounded-[2rem] p-6 relative overflow-hidden group" style="animation-delay: 0.08s;">
                 <div class="absolute top-0 right-0 p-4 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform">
-                    <i data-lucide="calendar-heart" class="w-24 h-24 text-indigo-500"></i>
+                    <i data-lucide="calendar-heart" class="w-24 h-24 text-amber-500"></i>
                 </div>
                 <div class="relative z-10">
-                    <p class="text-sm font-semibold text-slate-400 mb-1">共同打卡</p>
+                    <p class="text-sm font-semibold text-stone-400 mb-1">共同打卡</p>
                     <div class="flex items-baseline gap-2">
-                        <h3 class="text-4xl font-bold text-slate-800" id="stat-days">0</h3>
-                        <span class="text-slate-500 font-medium">天</span>
+                        <h3 class="text-4xl font-bold text-stone-800" id="stat-days">0</h3>
+                        <span class="text-stone-500 font-medium">天</span>
                     </div>
-                    <p class="text-xs text-slate-400 mt-3 flex items-center gap-1">
-                        <i data-lucide="sparkles" class="w-3 h-3 text-amber-400"></i> 每一个数字都是脚印
+                    <p class="text-xs text-stone-400 mt-3 flex items-center gap-1">
+                        <i data-lucide="sparkles" class="w-3 h-3 text-amber-400"></i> 每一个数字都在积累长期的变化
                     </p>
                 </div>
             </div>
 
-            <!-- 卡片 2：猪猪状态 -->
-            <div class="glass-card rounded-3xl p-6 relative overflow-hidden">
+            <div class="glass-card stat-card hover-lift reveal-up rounded-[2rem] p-6 relative overflow-hidden" style="animation-delay: 0.14s;">
                 <div class="flex justify-between items-start mb-2">
                     <div class="flex items-center gap-2">
-                        <div class="w-2.5 h-2.5 rounded-full bg-blue-400"></div>
-                        <p class="text-sm font-semibold text-slate-500">猪猪最新</p>
+                        <div class="w-2.5 h-2.5 rounded-full bg-sky-400"></div>
+                        <p class="text-sm font-semibold text-stone-500">猪猪最新</p>
                     </div>
                 </div>
                 <div class="flex items-baseline gap-2">
-                    <h3 class="text-3xl font-bold text-slate-800" id="stat-piggy-weight">--</h3>
-                    <span class="text-slate-500 font-medium">kg</span>
+                    <h3 class="text-3xl font-bold text-stone-800" id="stat-piggy-weight">--</h3>
+                    <span class="text-stone-500 font-medium">kg</span>
                 </div>
-                <div class="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" id="stat-piggy-trend">
-                    <!-- JS 动态填充变化趋势 -->
-                </div>
+                <div class="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" id="stat-piggy-trend"></div>
             </div>
 
-            <!-- 卡片 3：猫猫状态 -->
-            <div class="glass-card rounded-3xl p-6 relative overflow-hidden">
+            <div class="glass-card stat-card hover-lift reveal-up rounded-[2rem] p-6 relative overflow-hidden" style="animation-delay: 0.2s;">
                 <div class="flex justify-between items-start mb-2">
                     <div class="flex items-center gap-2">
                         <div class="w-2.5 h-2.5 rounded-full bg-rose-400"></div>
-                        <p class="text-sm font-semibold text-slate-500">猫猫最新</p>
+                        <p class="text-sm font-semibold text-stone-500">猫猫最新</p>
                     </div>
                 </div>
                 <div class="flex items-baseline gap-2">
-                    <h3 class="text-3xl font-bold text-slate-800" id="stat-kitty-weight">--</h3>
-                    <span class="text-slate-500 font-medium">kg</span>
+                    <h3 class="text-3xl font-bold text-stone-800" id="stat-kitty-weight">--</h3>
+                    <span class="text-stone-500 font-medium">kg</span>
                 </div>
-                <div class="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" id="stat-kitty-trend">
-                    <!-- JS 动态填充变化趋势 -->
-                </div>
+                <div class="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" id="stat-kitty-trend"></div>
             </div>
         </section>
 
-        <!-- 图表区域 -->
-        <section class="glass-card rounded-[2rem] p-5 sm:p-8">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-lg font-semibold text-slate-700 flex items-center gap-2">
-                    近期曲线
-                </h2>
-                <!-- 图例说明 -->
-                <div class="flex gap-4 text-xs font-medium text-slate-500">
+        <section class="glass-card chart-shell hover-lift reveal-up rounded-[2.4rem] p-5 sm:p-8" style="animation-delay: 0.26s;">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+                <div>
+                    <p class="section-label mb-2">Weight Plot</p>
+                    <h2 class="text-2xl serif-display font-semibold text-stone-700">近期曲线</h2>
+                </div>
+                <div class="flex gap-4 text-xs font-medium text-stone-500">
                     <div class="flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-blue-400"></span> 猪猪
+                        <span class="w-2 h-2 rounded-full bg-sky-400"></span> 猪猪
                     </div>
                     <div class="flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-rose-400"></span> 猫猫
                     </div>
                 </div>
             </div>
-            <div class="relative w-full h-[280px] sm:h-[350px]">
+            <div class="relative w-full h-[300px] sm:h-[380px]">
                 <canvas id="weightChart"></canvas>
             </div>
         </section>
 
-        <!-- 历史日记表格 -->
-        <section class="glass-card rounded-[2rem] overflow-hidden">
-            <div class="p-6 sm:px-8 border-b border-slate-100/60 bg-white/50">
-                <h2 class="text-lg font-semibold text-slate-700">日常足迹</h2>
+        <section class="glass-card hover-lift reveal-up rounded-[2.4rem] overflow-hidden" style="animation-delay: 0.32s;">
+            <div class="p-6 sm:px-8 border-b border-white/50 bg-white/30">
+                <p class="section-label mb-2">Floating Notes</p>
+                <h2 class="text-2xl serif-display font-semibold text-stone-700">日常足迹</h2>
+                <p class="text-sm text-stone-500 mt-2">心情、生活气息和小小记录</p>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="text-slate-400 text-xs uppercase tracking-wider">
-                            <th class="px-6 sm:px-8 py-4 font-medium font-sans">日期</th>
-                            <th class="px-6 py-4 font-medium font-sans">猪猪 (kg)</th>
-                            <th class="px-6 py-4 font-medium font-sans">猫猫 (kg)</th>
-                            <th class="px-6 sm:px-8 py-4 font-medium font-sans">生活随记</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dataTableBody" class="text-sm divide-y divide-slate-50 bg-white/30">
-                        <!-- 数据行将通过 JS 动态生成 -->
-                    </tbody>
-                </table>
+            <div class="px-5 py-6 sm:px-8 sm:py-8">
+                <div id="dataTableBody" class="note-wall"></div>
             </div>
         </section>
 
-        <footer class="text-center text-slate-400 text-xs py-8">
-            陪伴是最长情的告白 · 坚持是最美的健康
+        <footer class="text-center text-stone-400 text-xs py-8">
+            陪伴是最长情的告白，坚持是最安静的力量。
         </footer>
-
     </div>
 
-    <!-- 核心逻辑 -->
     <script>
-        // 1. 获取并解析独立数据源
         const dataElement = document.getElementById('weight-data');
         let rawData = [];
+
         try {
             rawData = JSON.parse(dataElement.textContent);
         } catch (e) {
-            console.error("数据解析失败，请检查顶部 JSON 格式是否正确", e);
+            console.error('数据解析失败，请检查 JSON 格式是否正确。', e);
         }
 
-        // 初始化图标
         lucide.createIcons();
 
-        // 显示当天日期
         const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
         document.getElementById('currentDateDisplay').textContent = new Date().toLocaleDateString('zh-CN', dateOptions);
 
-        if(rawData.length > 0) {
-            // ==========================================
-            // 数据计算与卡片渲染
-            // ==========================================
+        if (rawData.length > 0) {
             const latest = rawData[rawData.length - 1];
             const previous = rawData.length > 1 ? rawData[rawData.length - 2] : latest;
 
-            // 天数
             document.getElementById('stat-days').textContent = rawData.length;
-
-            // 最新体重
             document.getElementById('stat-piggy-weight').textContent = latest.piggy.toFixed(2);
             document.getElementById('stat-kitty-weight').textContent = latest.kitty.toFixed(2);
 
-            // 渲染趋势标签的通用函数 (克制、积极的视觉反馈)
             function renderTrend(elementId, current, prev) {
                 const el = document.getElementById(elementId);
-                const diff = (current - prev).toFixed(2);
-                
+                const diff = Number((current - prev).toFixed(2));
+
                 if (diff < 0) {
-                    // 体重下降：绿色，表示健康轻盈
-                    el.className = "mt-3 inline-flex items-center gap-1 px-3 py-1.5 rounded-2xl text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100/50";
-                    el.innerHTML = `<i data-lucide="trending-down" class="w-3.5 h-3.5"></i> 比昨日 ${diff} kg`;
+                    el.className = 'mt-3 inline-flex items-center gap-1 px-3 py-1.5 rounded-2xl text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100/70';
+                    el.innerHTML = `<i data-lucide="trending-down" class="w-3.5 h-3.5"></i> 较上一条 ${Math.abs(diff).toFixed(2)} kg`;
                 } else if (diff > 0) {
-                    // 体重上升：轻微的灰色/黄色，不制造焦虑
-                    el.className = "mt-3 inline-flex items-center gap-1 px-3 py-1.5 rounded-2xl text-xs font-semibold bg-amber-50 text-amber-600 border border-amber-100/50";
-                    el.innerHTML = `<i data-lucide="trending-up" class="w-3.5 h-3.5"></i> 吸收良好 +${diff} kg`;
+                    el.className = 'mt-3 inline-flex items-center gap-1 px-3 py-1.5 rounded-2xl text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100/70';
+                    el.innerHTML = `<i data-lucide="trending-up" class="w-3.5 h-3.5"></i> 较上一条 +${diff.toFixed(2)} kg`;
                 } else {
-                    // 持平：灰色
-                    el.className = "mt-3 inline-flex items-center gap-1 px-3 py-1.5 rounded-2xl text-xs font-semibold bg-slate-50 text-slate-500 border border-slate-100";
-                    el.innerHTML = `<i data-lucide="minus" class="w-3.5 h-3.5"></i> 保持完美稳态`;
+                    el.className = 'mt-3 inline-flex items-center gap-1 px-3 py-1.5 rounded-2xl text-xs font-semibold bg-stone-100/70 text-stone-500 border border-stone-200/60';
+                    el.innerHTML = '<i data-lucide="minus" class="w-3.5 h-3.5"></i> 保持平稳';
                 }
             }
 
             renderTrend('stat-piggy-trend', latest.piggy, previous.piggy);
             renderTrend('stat-kitty-trend', latest.kitty, previous.kitty);
 
-            // ==========================================
-            // 渲染高级感图表 (Chart.js)
-            // ==========================================
-            const labels = rawData.map(item => item.date.replace('-', '/')); // 将 02-26 换成更柔和的 02/26
-            const piggyData = rawData.map(item => item.piggy);
-            const kittyData = rawData.map(item => item.kitty);
-
+            const labels = rawData.map((item) => item.date.replace('-', '/'));
+            const piggyData = rawData.map((item) => item.piggy);
+            const kittyData = rawData.map((item) => item.kitty);
             const ctx = document.getElementById('weightChart').getContext('2d');
-            
-            // 创建柔和渐变色
-            const gradientPiggy = ctx.createLinearGradient(0, 0, 0, 350);
-            gradientPiggy.addColorStop(0, 'rgba(96, 165, 250, 0.2)'); // 顶部稍微明显
-            gradientPiggy.addColorStop(1, 'rgba(96, 165, 250, 0)');   // 底部透明
 
-            const gradientKitty = ctx.createLinearGradient(0, 0, 0, 350);
-            gradientKitty.addColorStop(0, 'rgba(251, 113, 133, 0.2)');
-            gradientKitty.addColorStop(1, 'rgba(251, 113, 133, 0)');
+            const gradientPiggy = ctx.createLinearGradient(0, 0, 0, 380);
+            gradientPiggy.addColorStop(0, 'rgba(127, 167, 216, 0.26)');
+            gradientPiggy.addColorStop(1, 'rgba(127, 167, 216, 0)');
 
-            // 全局默认字体颜色
-            Chart.defaults.color = '#94a3b8';
+            const gradientKitty = ctx.createLinearGradient(0, 0, 0, 380);
+            gradientKitty.addColorStop(0, 'rgba(217, 151, 159, 0.24)');
+            gradientKitty.addColorStop(1, 'rgba(217, 151, 159, 0)');
+
+            Chart.defaults.color = '#8c7f73';
             Chart.defaults.font.family = "'Noto Sans SC', sans-serif";
 
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: labels,
+                    labels,
                     datasets: [
                         {
                             label: '猪猪',
                             data: piggyData,
-                            borderColor: '#60A5FA', // 柔和蓝
+                            borderColor: '#7fa7d8',
                             backgroundColor: gradientPiggy,
                             borderWidth: 3,
-                            pointBackgroundColor: '#fff',
-                            pointBorderColor: '#60A5FA',
+                            pointBackgroundColor: '#fffdf9',
+                            pointBorderColor: '#7fa7d8',
                             pointBorderWidth: 2,
-                            pointRadius: 0, // 平时隐藏点，看起来更极简
+                            pointRadius: 0,
                             pointHoverRadius: 6,
                             fill: true,
-                            tension: 0.4, // 平滑的贝塞尔曲线
+                            tension: 0.42,
                             yAxisID: 'y'
                         },
                         {
                             label: '猫猫',
                             data: kittyData,
-                            borderColor: '#FB7185', // 柔和粉
+                            borderColor: '#d9979f',
                             backgroundColor: gradientKitty,
                             borderWidth: 3,
-                            pointBackgroundColor: '#fff',
-                            pointBorderColor: '#FB7185',
+                            pointBackgroundColor: '#fffdf9',
+                            pointBorderColor: '#d9979f',
                             pointBorderWidth: 2,
                             pointRadius: 0,
                             pointHoverRadius: 6,
                             fill: true,
-                            tension: 0.4,
+                            tension: 0.42,
                             yAxisID: 'y1'
                         }
                     ]
                 },
                 options: {
+                    animation: {
+                        duration: 1400,
+                        easing: 'easeOutQuart'
+                    },
                     responsive: true,
                     maintainAspectRatio: false,
                     interaction: {
                         mode: 'index',
-                        intersect: false,
+                        intersect: false
                     },
                     plugins: {
-                        legend: { display: false }, // 隐藏自带图例，使用我们定制的 HTML 图例
+                        legend: { display: false },
                         tooltip: {
-                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                            titleColor: '#334155',
-                            bodyColor: '#475569',
-                            borderColor: '#e2e8f0',
+                            backgroundColor: 'rgba(255, 252, 247, 0.96)',
+                            titleColor: '#43362c',
+                            bodyColor: '#64584f',
+                            borderColor: '#eadfce',
                             borderWidth: 1,
-                            padding: 12,
+                            padding: 14,
                             boxPadding: 6,
                             usePointStyle: true,
                             titleFont: { size: 13, weight: 'bold' },
                             bodyFont: { size: 13 },
                             callbacks: {
-                                afterBody: function(context) {
-                                    const dataIndex = context[0].dataIndex;
-                                    const note = rawData[dataIndex].note;
-                                    return note ? `\n📝 随记: ${note}` : '';
+                                afterBody(context) {
+                                    const note = rawData[context[0].dataIndex].note;
+                                    return note ? `\n随记：${note}` : '';
                                 }
                             }
                         }
@@ -370,17 +547,21 @@
                     scales: {
                         x: {
                             grid: { display: false, drawBorder: false },
-                            ticks: { maxTicksLimit: 8 } // 避免X轴太拥挤
+                            ticks: { maxTicksLimit: 8, color: '#97887b' },
+                            border: { display: false }
                         },
                         y: {
                             type: 'linear',
                             display: true,
                             position: 'left',
-                            grid: { color: '#f1f5f9', drawBorder: false, borderDash: [5, 5] },
+                            grid: { color: 'rgba(201, 177, 152, 0.22)', drawBorder: false, borderDash: [5, 6] },
                             border: { display: false },
                             suggestedMin: Math.floor(Math.min(...piggyData)) - 1,
                             suggestedMax: Math.ceil(Math.max(...piggyData)) + 1,
-                            ticks: { callback: value => value + ' kg' }
+                            ticks: {
+                                color: '#97887b',
+                                callback: (value) => value + ' kg'
+                            }
                         },
                         y1: {
                             type: 'linear',
@@ -390,42 +571,224 @@
                             border: { display: false },
                             suggestedMin: Math.floor(Math.min(...kittyData)) - 1,
                             suggestedMax: Math.ceil(Math.max(...kittyData)) + 1,
-                            ticks: { callback: value => value + ' kg' }
+                            ticks: {
+                                color: '#97887b',
+                                callback: (value) => value + ' kg'
+                            }
                         }
                     }
                 }
             });
 
-            // ==========================================
-            // 渲染下方优雅的表格
-            // ==========================================
-            const tableBody = document.getElementById('dataTableBody');
-            const reversedData = [...rawData].reverse();
+            const noteWall = document.getElementById('dataTableBody');
+            const notesOnly = [...rawData]
+                .filter((row) => row.note && row.note.trim())
+                .reverse();
 
-            reversedData.forEach((row, index) => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50/80 transition-colors duration-200 group";
-                
-                // 处理备注，温和的标签样式
-                const noteHtml = row.note 
-                    ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-medium group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
-                        ${row.note}
-                       </span>`
-                    : `<span class="text-slate-300 font-light italic">无记录</span>`;
+            notesOnly.forEach((row, index) => {
+                const rowEl = document.createElement('article');
+                const bubble = document.createElement('div');
+                const tone = index % 2 === 0 ? 'is-warm' : 'is-cool';
+                const delay = (0.42 + index * 0.08).toFixed(2);
+                const noteLength = row.note.trim().length;
+                const width = Math.max(150, Math.min(340, 112 + noteLength * 8.2));
 
-                // 日期颜色：最新的一天加粗标黑，过去的变淡
-                const dateClass = index === 0 ? "text-slate-800 font-semibold" : "text-slate-500";
+                rowEl.className = 'chat-row';
+                rowEl.dataset.index = String(index);
 
-                tr.innerHTML = `
-                    <td class="px-6 sm:px-8 py-4 ${dateClass}">${row.date.replace('-', '/')}</td>
-                    <td class="px-6 py-4 text-slate-700 font-medium">${row.piggy.toFixed(2)}</td>
-                    <td class="px-6 py-4 text-slate-700 font-medium">${row.kitty.toFixed(2)}</td>
-                    <td class="px-6 sm:px-8 py-4">${noteHtml}</td>
+                bubble.className = `note-bubble ${tone}`;
+                bubble.style.maxWidth = `min(calc(100% - 1rem), ${width}px)`;
+                bubble.style.animationDelay = `${delay}s`;
+                bubble.dataset.index = String(index);
+                bubble.dataset.length = String(noteLength);
+                bubble.innerHTML = `
+                    <div class="note-meta">
+                        <span class="note-date">${row.date.replace('-', '/')}</span>
+                        <span class="text-[11px] text-stone-400 tracking-[0.18em] uppercase">Note</span>
+                    </div>
+                    <p class="note-text text-sm">${row.note.trim()}</p>
                 `;
-                tableBody.appendChild(tr);
+
+                rowEl.appendChild(bubble);
+                noteWall.appendChild(rowEl);
             });
-            
-            lucide.createIcons(); // 重新渲染新生成的图标
+
+            function createSeed(index) {
+                return Math.abs(Math.sin((index + 1) * 19.19) * 10000) % 1;
+            }
+
+            let floatingStates = [];
+            let floatingFrame = null;
+            let lastFrameTime = 0;
+
+            function layoutFloatingNotes() {
+                const bubbles = Array.from(noteWall.querySelectorAll('.note-bubble'));
+                if (!bubbles.length) return;
+
+                const isMobile = window.innerWidth < 640;
+                const rows = Array.from(noteWall.querySelectorAll('.chat-row'));
+                const wallWidth = noteWall.clientWidth;
+                const availableWidth = Math.max(220, wallWidth - (isMobile ? 12 : 24));
+                const columnCount = isMobile ? 1 : Math.max(2, Math.min(5, Math.floor(availableWidth / 210)));
+                const columnWidth = availableWidth / columnCount;
+                const columnHeights = new Array(columnCount).fill(0);
+                floatingStates = [];
+
+                bubbles.forEach((bubble, index) => {
+                    const row = rows[index];
+                    const seedA = createSeed(index);
+                    const seedB = createSeed(index + 7);
+                    const seedC = createSeed(index + 13);
+                    const seedD = createSeed(index + 23);
+                    const seedE = createSeed(index + 31);
+                    const noteLength = Number(bubble.dataset.length || 10);
+                    const desiredWidth = isMobile
+                        ? Math.min(availableWidth, Math.max(190, availableWidth - 8))
+                        : Math.max(140, Math.min(280, 98 + noteLength * 6.6));
+
+                    const maxBubbleWidth = isMobile
+                        ? Math.min(desiredWidth, availableWidth)
+                        : Math.min(desiredWidth, columnWidth - 8);
+
+                    bubble.style.width = isMobile ? `${maxBubbleWidth}px` : 'max-content';
+                    bubble.style.maxWidth = `${Math.max(140, maxBubbleWidth)}px`;
+                    bubble.style.left = '0px';
+                    bubble.style.top = '0px';
+
+                    const bubbleWidth = bubble.offsetWidth;
+                    const bubbleHeight = bubble.offsetHeight;
+                    const targetColumn = isMobile
+                        ? 0
+                        : columnHeights.indexOf(Math.min(...columnHeights));
+                    const columnLeft = targetColumn * columnWidth;
+                    const innerOffset = isMobile
+                        ? Math.max(0, (availableWidth - bubbleWidth) / 2)
+                        : Math.max(
+                            -18,
+                            Math.min(
+                                columnWidth - bubbleWidth + 18,
+                                2 + seedA * Math.max(12, columnWidth - bubbleWidth + 10)
+                            )
+                        );
+                    const crossShift = isMobile ? 0 : Math.round((seedD - 0.5) * 38);
+                    const left = Math.max(0, Math.min(availableWidth - bubbleWidth, columnLeft + innerOffset + crossShift));
+                    const topBase = columnHeights[targetColumn];
+                    const top = isMobile
+                        ? topBase
+                        : Math.max(0, topBase - 10 + Math.round(seedC * 18));
+                    const rotate = isMobile
+                        ? 0
+                        : (-2.8 + seedB * 5.6).toFixed(2);
+
+                    bubble.style.left = `${left}px`;
+                    bubble.style.top = `${Math.max(0, top)}px`;
+                    bubble.style.setProperty('--bubble-rotate', `${rotate}deg`);
+
+                    if (row) {
+                        row.style.transform = 'translate3d(0, 0, 0)';
+                    }
+
+                    columnHeights[targetColumn] = top + bubbleHeight + (isMobile ? 22 : 10);
+                    floatingStates.push({
+                        row,
+                        bubble,
+                        baseX: 0,
+                        baseY: 0,
+                        x: 0,
+                        y: 0,
+                        vx: 0,
+                        vy: 0,
+                        width: bubbleWidth,
+                        height: bubbleHeight,
+                        ampX: isMobile ? 0 : 4 + seedB * 7,
+                        ampY: isMobile ? 0 : 3 + seedC * 6,
+                        phaseX: seedD * Math.PI * 2,
+                        phaseY: seedE * Math.PI * 2,
+                        speedX: 0.2 + seedA * 0.22,
+                        speedY: 0.18 + seedB * 0.18,
+                        maxShift: isMobile ? 0 : 12 + seedE * 10
+                    });
+                });
+
+                noteWall.style.height = `${Math.max(Math.max(...columnHeights) + 20, 260)}px`;
+                lastFrameTime = 0;
+                if (floatingFrame) {
+                    cancelAnimationFrame(floatingFrame);
+                }
+                floatingFrame = requestAnimationFrame(animateFloatingNotes);
+            }
+
+            function animateFloatingNotes(timestamp) {
+                if (!floatingStates.length) return;
+
+                if (!lastFrameTime) {
+                    lastFrameTime = timestamp;
+                }
+                const dt = Math.min(32, timestamp - lastFrameTime) / 16.6667;
+                lastFrameTime = timestamp;
+                const wallWidth = noteWall.clientWidth;
+                const wallHeight = noteWall.clientHeight;
+
+                floatingStates.forEach((state) => {
+                    if (!state.row) return;
+                    const targetX = Math.sin(timestamp * 0.001 * state.speedX + state.phaseX) * state.ampX;
+                    const targetY = Math.cos(timestamp * 0.001 * state.speedY + state.phaseY) * state.ampY;
+                    state.vx += (targetX - state.x) * 0.012 * dt;
+                    state.vy += (targetY - state.y) * 0.012 * dt;
+                    state.vx *= 0.94;
+                    state.vy *= 0.94;
+                    state.x += state.vx;
+                    state.y += state.vy;
+                });
+
+                for (let i = 0; i < floatingStates.length; i++) {
+                    for (let j = i + 1; j < floatingStates.length; j++) {
+                        const a = floatingStates[i];
+                        const b = floatingStates[j];
+                        if (!a.row || !b.row) continue;
+
+                        const ax = a.bubble.offsetLeft + a.x;
+                        const ay = a.bubble.offsetTop + a.y;
+                        const bx = b.bubble.offsetLeft + b.x;
+                        const by = b.bubble.offsetTop + b.y;
+                        const overlapX = Math.min(ax + a.width, bx + b.width) - Math.max(ax, bx);
+                        const overlapY = Math.min(ay + a.height, by + b.height) - Math.max(ay, by);
+
+                        if (overlapX > 0 && overlapY > 0) {
+                            const pushX = overlapX * 0.045 + 0.08;
+                            const pushY = overlapY * 0.038 + 0.06;
+                            const dirX = ax <= bx ? -1 : 1;
+                            const dirY = ay <= by ? -1 : 1;
+                            a.vx += dirX * pushX;
+                            b.vx -= dirX * pushX;
+                            a.vy += dirY * pushY;
+                            b.vy -= dirY * pushY;
+                        }
+                    }
+                }
+
+                floatingStates.forEach((state) => {
+                    if (!state.row) return;
+                    const baseLeft = state.bubble.offsetLeft;
+                    const baseTop = state.bubble.offsetTop;
+                    const minX = -baseLeft;
+                    const maxX = wallWidth - baseLeft - state.width;
+                    const minY = -baseTop;
+                    const maxY = wallHeight - baseTop - state.height;
+
+                    state.x = Math.max(Math.min(state.x, Math.min(maxX, state.maxShift)), Math.max(minX, -state.maxShift));
+                    state.y = Math.max(Math.min(state.y, Math.min(maxY, state.maxShift * 0.8)), Math.max(minY, -state.maxShift * 0.8));
+
+                    state.row.style.transform = `translate3d(${state.x.toFixed(2)}px, ${state.y.toFixed(2)}px, 0)`;
+                });
+
+                floatingFrame = requestAnimationFrame(animateFloatingNotes);
+            }
+
+            requestAnimationFrame(layoutFloatingNotes);
+            window.addEventListener('resize', layoutFloatingNotes);
+
+            lucide.createIcons();
         }
     </script>
 </body>
