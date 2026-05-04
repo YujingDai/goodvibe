@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猪猪 & 猫猫 的健康日记</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- 引入 Lucide 图标 -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 引入 Google Fonts: Noto Sans SC -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #F8FAFC;
+            font-family: 'Noto Sans SC', -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        /* 隐藏极其生硬的默认滚动条，替换为轻盈质感 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #E2E8F0;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #CBD5E1;
+        }
+        /* 柔和的悬浮过渡效果 */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 40px -2px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(226, 232, 240, 0.6);
+        }
+    </style>
+</head>
+<body class="text-slate-700 pb-12">
+
+    <!-- ========================================== -->
+    <!-- 🗄️ 独立数据源 (仅维护此处即可) -->
+    <!-- ========================================== -->
+    <!-- 说明：这里相当于一个独立的 data.json 文件。 -->
+    <!-- 格式要求严格：属性名必须用双引号，最后一行数据末尾不要加逗号。 -->
+    <script id="weight-data" type="application/json">
+    [
+        { "date": "02-26", "piggy": 70.50, "kitty": 55.25, "note": "" },
+        { "date": "02-27", "piggy": 69.95, "kitty": 54.70, "note": "" },
+        { "date": "02-28", "piggy": 70.20, "kitty": 54.85, "note": "" },
+        { "date": "03-01", "piggy": 70.00, "kitty": 54.65, "note": "" },
+        { "date": "03-02", "piggy": 70.00, "kitty": 54.90, "note": "周末" },
+        { "date": "03-03", "piggy": 70.11, "kitty": 54.90, "note": "" },
+        { "date": "03-04", "piggy": 69.90, "kitty": 54.95, "note": "" },
+        { "date": "03-05", "piggy": 70.60, "kitty": 54.60, "note": "" },
+        { "date": "03-06", "piggy": 69.80, "kitty": 54.60, "note": "" },
+        { "date": "03-07", "piggy": 69.71, "kitty": 54.55, "note": "" },
+        { "date": "03-08", "piggy": 70.40, "kitty": 54.90, "note": "中午吃了牛肉火锅" },
+        { "date": "03-09", "piggy": 69.80, "kitty": 54.70, "note": "" },
+        { "date": "03-11", "piggy": 69.65, "kitty": 54.45, "note": "" },
+        { "date": "03-12", "piggy": 70.00, "kitty": 54.70, "note": "" },
+        { "date": "03-13", "piggy": 70.00, "kitty": 54.35, "note": "" },
+        { "date": "03-14", "piggy": 69.30, "kitty": 53.85, "note": "坚持得很好" },
+        { "date": "03-15", "piggy": 70.50, "kitty": 54.60, "note": "周末" },
+        { "date": "03-16", "piggy": 70.10, "kitty": 54.25, "note": "" },
+        { "date": "03-17", "piggy": 69.70, "kitty": 54.10, "note": "" },
+        { "date": "03-18", "piggy": 69.60, "kitty": 53.80, "note": "" },
+        { "date": "03-19", "piggy": 69.20, "kitty": 53.70, "note": "" },
+        { "date": "03-20", "piggy": 69.10, "kitty": 54.05, "note": "" },
+        { "date": "03-21", "piggy": 69.40, "kitty": 53.65, "note": "" },
+        { "date": "03-22", "piggy": 69.35, "kitty": 54.0, "note": "" },
+        { "date": "03-23", "piggy": 69.45, "kitty": 54.20, "note": "" },        
+        { "date": "03-25", "piggy": 68.80, "kitty": 54.10, "note": "" },
+        { "date": "03-26", "piggy": 68.95, "kitty": 53.60, "note": "" },
+        { "date": "03-27", "piggy": 69.15, "kitty": 53.90, "note": "" },
+        { "date": "03-28", "piggy": 68.90, "kitty": 54.30, "note": "吃素" },
+        { "date": "03-30", "piggy": 69.20, "kitty": 54.30, "note": "" },
+        { "date": "03-31", "piggy": 68.65, "kitty": 53.90, "note": "" },
+        { "date": "04-01", "piggy": 68.30, "kitty": 53.70, "note": "" },
+        { "date": "04-02", "piggy": 68.60, "kitty": 53.50, "note": "" },
+        { "date": "04-07", "piggy": 69.25, "kitty": 53.70, "note": "" },
+        { "date": "04-08", "piggy": 68.40, "kitty": 53.30, "note": "" },
+        { "date": "04-09", "piggy": 69.30, "kitty": 53.60, "note": "" },
+        { "date": "04-10", "piggy": 69.30, "kitty": 54.20, "note": "" },        
+        { "date": "04-12", "piggy": 68.60, "kitty": 53.35, "note": "" },        
+        { "date": "04-16", "piggy": 68.85, "kitty": 53.20, "note": "" },
+        { "date": "04-23", "piggy": 68.65, "kitty": 53.70, "note": "" },
+        { "date": "04-24", "piggy": 68.70, "kitty": 52.83, "note": "" },
+        { "date": "04-27", "piggy": 68.45, "kitty": 53.0, "note": "" },
+        { "date": "04-28", "piggy": 68.15, "kitty": 52.45, "note": "" },
+        { "date": "04-29", "piggy": 67.85, "kitty": 52.8, "note": "" },
+        { "date": "04-30", "piggy": 68.0, "kitty": 52.45, "note": "" },
+        { "date": "04-29", "piggy": 67.95, "kitty": 52.8, "note": "" }
+    ]
+    </script>
+    <!-- ========================================== -->
+
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        
+        <!-- 页面头部：温和的问候 -->
+        <header class="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-4">
+            <div>
+                <h1 class="text-3xl font-semibold text-slate-800 tracking-tight flex items-center gap-3">
+                    <span class="bg-indigo-50 text-indigo-500 p-2 rounded-2xl">
+                        <i data-lucide="leaf" class="w-6 h-6"></i>
+                    </span>
+                    家庭健康日记
+                </h1>
+                <p class="text-slate-500 mt-2 text-sm sm:text-base font-medium flex items-center gap-2">
+                    今天也在慢慢变好，记录本身就是一种坚持 🌿
+                </p>
+            </div>
+            <div class="text-sm text-slate-400 font-medium pb-1" id="currentDateDisplay">
+                <!-- 日期由 JS 填充 -->
+            </div>
+        </header>
+
+        <!-- 状态仪表盘卡片 -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <!-- 卡片 1：坚持天数 -->
+            <div class="glass-card rounded-3xl p-6 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-4 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform">
+                    <i data-lucide="calendar-heart" class="w-24 h-24 text-indigo-500"></i>
+                </div>
+                <div class="relative z-10">
+                    <p class="text-sm font-semibold text-slate-400 mb-1">共同打卡</p>
+                    <div class="flex items-baseline gap-2">
+                        <h3 class="text-4xl font-bold text-slate-800" id="stat-days">0</h3>
+                        <span class="text-slate-500 font-medium">天</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-3 flex items-center gap-1">
+                        <i data-lucide="sparkles" class="w-3 h-3 text-amber-400"></i> 每一个数字都是脚印
+                    </p>
+                </div>
+            </div>
+
+            <!-- 卡片 2：猪猪状态 -->
+            <div class="glass-card rounded-3xl p-6 relative overflow-hidden">
+                <div class="flex justify-between items-start mb-2">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2.5 h-2.5 rounded-full bg-blue-400"></div>
+                        <p class="text-sm font-semibold text-slate-500">猪猪最新</p>
+                    </div>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <h3 class="text-3xl font-bold text-slate-800" id="stat-piggy-weight">--</h3>
+                    <span class="text-slate-500 font-medium">kg</span>
+                </div>
+                <div class="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" id="stat-piggy-trend">
+                    <!-- JS 动态填充变化趋势 -->
+                </div>
+            </div>
+
+            <!-- 卡片 3：猫猫状态 -->
+            <div class="glass-card rounded-3xl p-6 relative overflow-hidden">
+                <div class="flex justify-between items-start mb-2">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2.5 h-2.5 rounded-full bg-rose-400"></div>
+                        <p class="text-sm font-semibold text-slate-500">猫猫最新</p>
+                    </div>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <h3 class="text-3xl font-bold text-slate-800" id="stat-kitty-weight">--</h3>
+                    <span class="text-slate-500 font-medium">kg</span>
+                </div>
+                <div class="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" id="stat-kitty-trend">
+                    <!-- JS 动态填充变化趋势 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 图表区域 -->
+        <section class="glass-card rounded-[2rem] p-5 sm:p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-semibold text-slate-700 flex items-center gap-2">
+                    近期曲线
+                </h2>
+                <!-- 图例说明 -->
+                <div class="flex gap-4 text-xs font-medium text-slate-500">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-blue-400"></span> 猪猪
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-rose-400"></span> 猫猫
+                    </div>
+                </div>
+            </div>
+            <div class="relative w-full h-[280px] sm:h-[350px]">
+                <canvas id="weightChart"></canvas>
+            </div>
+        </section>
+
+        <!-- 历史日记表格 -->
+        <section class="glass-card rounded-[2rem] overflow-hidden">
+            <div class="p-6 sm:px-8 border-b border-slate-100/60 bg-white/50">
+                <h2 class="text-lg font-semibold text-slate-700">日常足迹</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="text-slate-400 text-xs uppercase tracking-wider">
+                            <th class="px-6 sm:px-8 py-4 font-medium font-sans">日期</th>
+                            <th class="px-6 py-4 font-medium font-sans">猪猪 (kg)</th>
+                            <th class="px-6 py-4 font-medium font-sans">猫猫 (kg)</th>
+                            <th class="px-6 sm:px-8 py-4 font-medium font-sans">生活随记</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody" class="text-sm divide-y divide-slate-50 bg-white/30">
+                        <!-- 数据行将通过 JS 动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer class="text-center text-slate-400 text-xs py-8">
+            陪伴是最长情的告白 · 坚持是最美的健康
+        </footer>
+
+    </div>
+
+    <!-- 核心逻辑 -->
+    <script>
+        // 1. 获取并解析独立数据源
+        const dataElement = document.getElementById('weight-data');
+        let rawData = [];
+        try {
+            rawData = JSON.parse(dataElement.textContent);
+        } catch (e) {
+            console.error("数据解析失败，请检查顶部 JSON 格式是否正确", e);
+        }
+
+        // 初始化图标
+        lucide.createIcons();
+
+        // 显示当天日期
+        const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+        document.getElementById('currentDateDisplay').textContent = new Date().toLocaleDateString('zh-CN', dateOptions);
+
+        if(rawData.length > 0) {
+            // ==========================================
+            // 数据计算与卡片渲染
+            // ==========================================
+            const latest = rawData[rawData.length - 1];
+            const previous = rawData.length > 1 ? rawData[rawData.length - 2] : latest;
+
+            // 天数
+            document.getElementById('stat-days').textContent = rawData.length;
+
+            // 最新体重
+            document.getElementById('stat-piggy-weight').textContent = latest.piggy.toFixed(2);
+            document.getElementById('stat-kitty-weight').textContent = latest.kitty.toFixed(2);
+
+            // 渲染趋势标签的通用函数 (克制、积极的视觉反馈)
+            function renderTrend(elementId, current, prev) {
+                const el = document.getElementById(elementId);
+                const diff = (current - prev).toFixed(2);
+                
+                if (diff < 0) {
+                    // 体重下降：绿色，表示健康轻盈
+                    el.className = "mt-3 inline-flex items-center gap-1 px-3 py-1.5 rounded-2xl text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100/50";
+                    el.innerHTML = `<i data-lucide="trending-down" class="w-3.5 h-3.5"></i> 比昨日 ${diff} kg`;
+                } else if (diff > 0) {
+                    // 体重上升：轻微的灰色/黄色，不制造焦虑
+                    el.className = "mt-3 inline-flex items-center gap-1 px-3 py-1.5 rounded-2xl text-xs font-semibold bg-amber-50 text-amber-600 border border-amber-100/50";
+                    el.innerHTML = `<i data-lucide="trending-up" class="w-3.5 h-3.5"></i> 吸收良好 +${diff} kg`;
+                } else {
+                    // 持平：灰色
+                    el.className = "mt-3 inline-flex items-center gap-1 px-3 py-1.5 rounded-2xl text-xs font-semibold bg-slate-50 text-slate-500 border border-slate-100";
+                    el.innerHTML = `<i data-lucide="minus" class="w-3.5 h-3.5"></i> 保持完美稳态`;
+                }
+            }
+
+            renderTrend('stat-piggy-trend', latest.piggy, previous.piggy);
+            renderTrend('stat-kitty-trend', latest.kitty, previous.kitty);
+
+            // ==========================================
+            // 渲染高级感图表 (Chart.js)
+            // ==========================================
+            const labels = rawData.map(item => item.date.replace('-', '/')); // 将 02-26 换成更柔和的 02/26
+            const piggyData = rawData.map(item => item.piggy);
+            const kittyData = rawData.map(item => item.kitty);
+
+            const ctx = document.getElementById('weightChart').getContext('2d');
+            
+            // 创建柔和渐变色
+            const gradientPiggy = ctx.createLinearGradient(0, 0, 0, 350);
+            gradientPiggy.addColorStop(0, 'rgba(96, 165, 250, 0.2)'); // 顶部稍微明显
+            gradientPiggy.addColorStop(1, 'rgba(96, 165, 250, 0)');   // 底部透明
+
+            const gradientKitty = ctx.createLinearGradient(0, 0, 0, 350);
+            gradientKitty.addColorStop(0, 'rgba(251, 113, 133, 0.2)');
+            gradientKitty.addColorStop(1, 'rgba(251, 113, 133, 0)');
+
+            // 全局默认字体颜色
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.font.family = "'Noto Sans SC', sans-serif";
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '猪猪',
+                            data: piggyData,
+                            borderColor: '#60A5FA', // 柔和蓝
+                            backgroundColor: gradientPiggy,
+                            borderWidth: 3,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#60A5FA',
+                            pointBorderWidth: 2,
+                            pointRadius: 0, // 平时隐藏点，看起来更极简
+                            pointHoverRadius: 6,
+                            fill: true,
+                            tension: 0.4, // 平滑的贝塞尔曲线
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: '猫猫',
+                            data: kittyData,
+                            borderColor: '#FB7185', // 柔和粉
+                            backgroundColor: gradientKitty,
+                            borderWidth: 3,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#FB7185',
+                            pointBorderWidth: 2,
+                            pointRadius: 0,
+                            pointHoverRadius: 6,
+                            fill: true,
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: { display: false }, // 隐藏自带图例，使用我们定制的 HTML 图例
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            titleColor: '#334155',
+                            bodyColor: '#475569',
+                            borderColor: '#e2e8f0',
+                            borderWidth: 1,
+                            padding: 12,
+                            boxPadding: 6,
+                            usePointStyle: true,
+                            titleFont: { size: 13, weight: 'bold' },
+                            bodyFont: { size: 13 },
+                            callbacks: {
+                                afterBody: function(context) {
+                                    const dataIndex = context[0].dataIndex;
+                                    const note = rawData[dataIndex].note;
+                                    return note ? `\n📝 随记: ${note}` : '';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false, drawBorder: false },
+                            ticks: { maxTicksLimit: 8 } // 避免X轴太拥挤
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            grid: { color: '#f1f5f9', drawBorder: false, borderDash: [5, 5] },
+                            border: { display: false },
+                            suggestedMin: Math.floor(Math.min(...piggyData)) - 1,
+                            suggestedMax: Math.ceil(Math.max(...piggyData)) + 1,
+                            ticks: { callback: value => value + ' kg' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: { display: false },
+                            border: { display: false },
+                            suggestedMin: Math.floor(Math.min(...kittyData)) - 1,
+                            suggestedMax: Math.ceil(Math.max(...kittyData)) + 1,
+                            ticks: { callback: value => value + ' kg' }
+                        }
+                    }
+                }
+            });
+
+            // ==========================================
+            // 渲染下方优雅的表格
+            // ==========================================
+            const tableBody = document.getElementById('dataTableBody');
+            const reversedData = [...rawData].reverse();
+
+            reversedData.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition-colors duration-200 group";
+                
+                // 处理备注，温和的标签样式
+                const noteHtml = row.note 
+                    ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-medium group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+                        ${row.note}
+                       </span>`
+                    : `<span class="text-slate-300 font-light italic">无记录</span>`;
+
+                // 日期颜色：最新的一天加粗标黑，过去的变淡
+                const dateClass = index === 0 ? "text-slate-800 font-semibold" : "text-slate-500";
+
+                tr.innerHTML = `
+                    <td class="px-6 sm:px-8 py-4 ${dateClass}">${row.date.replace('-', '/')}</td>
+                    <td class="px-6 py-4 text-slate-700 font-medium">${row.piggy.toFixed(2)}</td>
+                    <td class="px-6 py-4 text-slate-700 font-medium">${row.kitty.toFixed(2)}</td>
+                    <td class="px-6 sm:px-8 py-4">${noteHtml}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+            
+            lucide.createIcons(); // 重新渲染新生成的图标
+        }
+    </script>
+</body>
+</html>
