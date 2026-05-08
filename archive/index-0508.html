@@ -366,10 +366,7 @@
                     <h3 class="text-3xl font-bold text-stone-800" id="stat-piggy-weight">--</h3>
                     <span class="text-stone-500 font-medium">kg</span>
                 </div>
-                <div class="mt-3 flex flex-row flex-wrap gap-2 items-center">
-                    <div id="stat-piggy-trend"></div>
-                    <div class="inline-flex items-center gap-1 px-3 py-1.5 rounded-2xl text-xs font-semibold bg-white/60 text-stone-600 border border-stone-200/60 shadow-sm" id="stat-piggy-total-loss"></div>
-                </div>
+                <div class="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" id="stat-piggy-trend"></div>
             </div>
 
             <div class="glass-card stat-card hover-lift reveal-up rounded-[2rem] p-6 relative overflow-hidden" style="animation-delay: 0.2s;">
@@ -383,10 +380,7 @@
                     <h3 class="text-3xl font-bold text-stone-800" id="stat-kitty-weight">--</h3>
                     <span class="text-stone-500 font-medium">kg</span>
                 </div>
-                <div class="mt-3 flex flex-row flex-wrap gap-2 items-center">
-                    <div id="stat-kitty-trend"></div>
-                    <div class="inline-flex items-center gap-1 px-3 py-1.5 rounded-2xl text-xs font-semibold bg-white/60 text-stone-600 border border-stone-200/60 shadow-sm" id="stat-kitty-total-loss"></div>
-                </div>
+                <div class="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium" id="stat-kitty-trend"></div>
             </div>
         </section>
 
@@ -396,7 +390,14 @@
                     <p class="section-label mb-2">Weight Plot</p>
                     <h2 class="text-2xl serif-display font-semibold text-stone-700">近期曲线</h2>
                 </div>
-                <!-- 图例现在由 Chart.js 原生渲染，方便点击交互 -->
+                <div class="flex gap-4 text-xs font-medium text-stone-500">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-sky-400"></span> 猪猪
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-rose-400"></span> 猫猫
+                    </div>
+                </div>
             </div>
             <div class="relative w-full h-[300px] sm:h-[380px]">
                 <canvas id="weightChart"></canvas>
@@ -447,13 +448,13 @@
                 const diff = Number((current - prev).toFixed(2));
 
                 if (diff < 0) {
-                    el.className = 'inline-flex items-center gap-1 px-3 py-1.5 rounded-2xl text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100/70';
+                    el.className = 'mt-3 inline-flex items-center gap-1 px-3 py-1.5 rounded-2xl text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100/70';
                     el.innerHTML = `<i data-lucide="trending-down" class="w-3.5 h-3.5"></i> 较上一条 ${Math.abs(diff).toFixed(2)} kg`;
                 } else if (diff > 0) {
-                    el.className = 'inline-flex items-center gap-1 px-3 py-1.5 rounded-2xl text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100/70';
+                    el.className = 'mt-3 inline-flex items-center gap-1 px-3 py-1.5 rounded-2xl text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100/70';
                     el.innerHTML = `<i data-lucide="trending-up" class="w-3.5 h-3.5"></i> 较上一条 +${diff.toFixed(2)} kg`;
                 } else {
-                    el.className = 'inline-flex items-center gap-1 px-3 py-1.5 rounded-2xl text-xs font-semibold bg-stone-100/70 text-stone-500 border border-stone-200/60';
+                    el.className = 'mt-3 inline-flex items-center gap-1 px-3 py-1.5 rounded-2xl text-xs font-semibold bg-stone-100/70 text-stone-500 border border-stone-200/60';
                     el.innerHTML = '<i data-lucide="minus" class="w-3.5 h-3.5"></i> 保持平稳';
                 }
             }
@@ -461,47 +462,9 @@
             renderTrend('stat-piggy-trend', latest.piggy, previous.piggy);
             renderTrend('stat-kitty-trend', latest.kitty, previous.kitty);
 
-            // 优化：计算总减重和减重比例（增加对体重上升的兼容处理）
-            function renderTotalLoss(elementId, initial, current) {
-                const el = document.getElementById(elementId);
-                const diff = (initial - current).toFixed(2);
-                const pctStr = ((Math.abs(diff) / initial) * 100).toFixed(1);
-                
-                if (diff > 0) {
-                    el.innerHTML = `<i data-lucide="award" class="w-4 h-4 text-amber-500"></i> 总减 ${diff} kg (${pctStr}%)`;
-                } else if (diff < 0) {
-                    el.innerHTML = `<i data-lucide="alert-circle" class="w-4 h-4 text-rose-500"></i> 总增 ${Math.abs(diff)} kg (${pctStr}%)`;
-                } else {
-                    el.innerHTML = `<i data-lucide="minus" class="w-4 h-4 text-stone-400"></i> 保持不变`;
-                }
-            }
-            
-            renderTotalLoss('stat-piggy-total-loss', rawData[0].piggy, latest.piggy);
-            renderTotalLoss('stat-kitty-total-loss', rawData[0].kitty, latest.kitty);
-
-            // 计算 SMA 工具函数 (5日均线)
-            function calculateSMA(data, windowSize) {
-                let result = [];
-                for (let i = 0; i < data.length; i++) {
-                    if (i < windowSize - 1) {
-                        result.push(null);
-                    } else {
-                        let sum = 0;
-                        for (let j = 0; j < windowSize; j++) {
-                            sum += data[i - j];
-                        }
-                        result.push(Number((sum / windowSize).toFixed(2)));
-                    }
-                }
-                return result;
-            }
-
             const labels = rawData.map((item) => item.date.replace('-', '/'));
             const piggyData = rawData.map((item) => item.piggy);
             const kittyData = rawData.map((item) => item.kitty);
-            const piggySMA = calculateSMA(piggyData, 5);
-            const kittySMA = calculateSMA(kittyData, 5);
-
             const ctx = document.getElementById('weightChart').getContext('2d');
 
             const gradientPiggy = ctx.createLinearGradient(0, 0, 0, 380);
@@ -521,7 +484,7 @@
                     labels,
                     datasets: [
                         {
-                            label: '猪猪实际',
+                            label: '猪猪',
                             data: piggyData,
                             borderColor: '#7fa7d8',
                             backgroundColor: gradientPiggy,
@@ -536,19 +499,7 @@
                             yAxisID: 'y'
                         },
                         {
-                            label: '猪猪趋势 (SMA)',
-                            data: piggySMA,
-                            borderColor: '#5c87ba',
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            pointRadius: 0,
-                            pointHoverRadius: 0,
-                            fill: false,
-                            tension: 0.42,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: '猫猫实际',
+                            label: '猫猫',
                             data: kittyData,
                             borderColor: '#d9979f',
                             backgroundColor: gradientKitty,
@@ -559,18 +510,6 @@
                             pointRadius: 0,
                             pointHoverRadius: 6,
                             fill: true,
-                            tension: 0.42,
-                            yAxisID: 'y1'
-                        },
-                        {
-                            label: '猫猫趋势 (SMA)',
-                            data: kittySMA,
-                            borderColor: '#ba737c',
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            pointRadius: 0,
-                            pointHoverRadius: 0,
-                            fill: false,
                             tension: 0.42,
                             yAxisID: 'y1'
                         }
@@ -588,22 +527,7 @@
                         intersect: false
                     },
                     plugins: {
-                        legend: { 
-                            display: true,
-                            position: 'top',
-                            align: 'end',
-                            labels: {
-                                usePointStyle: true,
-                                boxWidth: 8,
-                                boxHeight: 8,
-                                color: '#7c746d',
-                                font: {
-                                    family: "'Noto Sans SC', sans-serif",
-                                    size: 12,
-                                    weight: 500
-                                }
-                            }
-                        },
+                        legend: { display: false },
                         tooltip: {
                             backgroundColor: 'rgba(255, 252, 247, 0.96)',
                             titleColor: '#43362c',
