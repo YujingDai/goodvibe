@@ -119,26 +119,6 @@
                 radial-gradient(circle at top, rgba(201, 166, 107, 0.08), transparent 42%);
         }
 
-        .range-chip {
-            border: 1px solid rgba(201, 177, 152, 0.24);
-            background: rgba(255, 252, 247, 0.72);
-            color: #7c746d;
-            transition: all 180ms ease;
-        }
-
-        .range-chip:hover {
-            background: rgba(255, 248, 240, 0.95);
-            border-color: rgba(201, 166, 107, 0.35);
-            color: #5b5048;
-        }
-
-        .range-chip.is-active {
-            background: linear-gradient(180deg, rgba(247, 232, 229, 0.95), rgba(255, 247, 243, 0.95));
-            border-color: rgba(201, 166, 107, 0.42);
-            color: #4f3d31;
-            box-shadow: 0 10px 22px -18px rgba(79, 56, 35, 0.42);
-        }
-
         .note-wall {
             position: relative;
             min-height: 420px;
@@ -421,12 +401,7 @@
                     <p class="section-label mb-2">Weight Plot</p>
                     <h2 class="text-2xl serif-display font-semibold text-stone-700">近期曲线</h2>
                 </div>
-                <div class="flex flex-wrap items-center gap-2" id="chartRangeControls">
-                    <button type="button" class="range-chip px-3 py-1.5 rounded-full text-xs font-semibold" data-range="7">近7条</button>
-                    <button type="button" class="range-chip px-3 py-1.5 rounded-full text-xs font-semibold" data-range="14">近14条</button>
-                    <button type="button" class="range-chip px-3 py-1.5 rounded-full text-xs font-semibold" data-range="30">近30条</button>
-                    <button type="button" class="range-chip px-3 py-1.5 rounded-full text-xs font-semibold" data-range="all">全部</button>
-                </div>
+                <!-- 图例现在由 Chart.js 原生渲染，方便点击交互 -->
             </div>
             <div class="relative w-full h-[300px] sm:h-[380px]">
                 <canvas id="weightChart"></canvas>
@@ -545,7 +520,7 @@
             Chart.defaults.color = '#8c7f73';
             Chart.defaults.font.family = "'Noto Sans SC', sans-serif";
 
-            const weightChart = new Chart(ctx, {
+            new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels,
@@ -655,8 +630,6 @@
                     },
                     scales: {
                         x: {
-                            min: Math.max(labels.length - Math.min(14, labels.length), 0),
-                            max: labels.length - 1,
                             grid: { display: false, drawBorder: false },
                             ticks: { maxTicksLimit: 8, color: '#97887b' },
                             border: { display: false }
@@ -690,59 +663,6 @@
                     }
                 }
             });
-
-            const chartRangeControls = document.getElementById('chartRangeControls');
-
-            function getVisibleAxisBounds(series, startIndex, endIndex) {
-                const visibleValues = series
-                    .slice(startIndex, endIndex + 1)
-                    .filter((value) => value !== null && value !== undefined && !Number.isNaN(value));
-
-                if (!visibleValues.length) {
-                    return { min: undefined, max: undefined };
-                }
-
-                const minValue = Math.min(...visibleValues);
-                const maxValue = Math.max(...visibleValues);
-                const spread = Math.max(maxValue - minValue, 0.2);
-                const padding = Math.max(spread * 0.35, 0.12);
-
-                return {
-                    min: Number((minValue - padding).toFixed(2)),
-                    max: Number((maxValue + padding).toFixed(2))
-                };
-            }
-
-            function setChartRange(rangeValue) {
-                const total = labels.length;
-                const numericRange = rangeValue === 'all' ? total : Number(rangeValue);
-                const visibleCount = rangeValue === 'all' ? total : Math.min(total, numericRange);
-                const startIndex = Math.max(total - visibleCount, 0);
-                const endIndex = total - 1;
-                const piggyBounds = getVisibleAxisBounds(piggyData, startIndex, endIndex);
-                const kittyBounds = getVisibleAxisBounds(kittyData, startIndex, endIndex);
-
-                weightChart.options.scales.x.min = startIndex;
-                weightChart.options.scales.x.max = endIndex;
-                weightChart.options.scales.x.ticks.maxTicksLimit = visibleCount <= 8 ? visibleCount : 8;
-                weightChart.options.scales.y.min = piggyBounds.min;
-                weightChart.options.scales.y.max = piggyBounds.max;
-                weightChart.options.scales.y1.min = kittyBounds.min;
-                weightChart.options.scales.y1.max = kittyBounds.max;
-                weightChart.update();
-
-                Array.from(chartRangeControls.querySelectorAll('[data-range]')).forEach((button) => {
-                    button.classList.toggle('is-active', button.dataset.range === String(rangeValue));
-                });
-            }
-
-            chartRangeControls.addEventListener('click', (event) => {
-                const button = event.target.closest('[data-range]');
-                if (!button) return;
-                setChartRange(button.dataset.range);
-            });
-
-            setChartRange(labels.length >= 14 ? '14' : 'all');
 
             const noteWall = document.getElementById('dataTableBody');
             const notesOnly = [...rawData]
